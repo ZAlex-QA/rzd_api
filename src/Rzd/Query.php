@@ -41,7 +41,7 @@ class Query
      */
     public function get($path, array $params = [], $method = 'post')
     {
-        return $this->send($path, $params, $method)->response;
+        return $this->send($path, $params, $method)->getResponse();
     }
 
     /**
@@ -59,18 +59,8 @@ class Query
 
         $proxy = $this->config->getProxy();
 
-        if ($proxy['server']) {
-            $this->curl->setOpt(CURLOPT_PROXY, $proxy['server']);
-            $this->curl->setOpt(CURLOPT_HTTPPROXYTUNNEL, true);
-        }
-
-        if ($proxy['port']) {
-            $this->curl->setOpt(CURLOPT_PROXYPORT, $proxy['port']);
-        }
-
-        if ($proxy['username'] && $proxy['password']) {
-            $this->curl->setOpt(CURLOPT_PROXYUSERPWD, $proxy['username'] . ':' . $proxy['password']);
-        }
+        $this->curl->setProxy($proxy['server'], $proxy['port'], $proxy['username'], $proxy['password']);
+        $this->curl->setProxyTunnel();
 
         if ($userAgent = $this->config->getUserAgent()) {
             $this->curl->setUserAgent($userAgent);
@@ -110,7 +100,7 @@ class Query
 
             $this->curl->$method($path, $params);
 
-            $response = $this->curl->response;
+            $response = $this->curl->getResponse();
 
             if (empty($response) || ! empty($response->error)) {
                 throw new RuntimeException('Не удалось получить данные!');
