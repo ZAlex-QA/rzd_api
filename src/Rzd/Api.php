@@ -93,10 +93,10 @@ class Api
         $routes = json_decode($this->query->get($this->path, $layer + $params));
 
         return json_encode([
-            'cars'           => $routes->lst[0]->cars,
-            'functionBlocks' => $routes->lst[0]->functionBlocks,
-            'schemes'        => $routes->schemes,
-            'companies'      => $routes->insuranceCompany,
+            'cars'           => $routes->lst[0]->cars ?? null,
+            'functionBlocks' => $routes->lst[0]->functionBlocks ?? null,
+            'schemes'        => $routes->schemes ?? null,
+            'companies'      => $routes->insuranceCompany ?? null,
         ]);
     }
 
