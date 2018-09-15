@@ -1,11 +1,12 @@
 <?php
 require dirname(__DIR__) . '/vendor/autoload.php';
 
-$api = new Rzd\Api();
+$api  = new Rzd\Api();
+$lang = (new Rzd\Config())->getLanguage();
 
 $params = [
-    'stationNamePart' => 'ЧЕБ',
-    'lang'            => 'ru',
+    'stationNamePart' => 'zz',
+    'lang'            => $lang,
     'compactMode'     => 'y',
 ];
 

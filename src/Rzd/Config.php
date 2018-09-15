@@ -7,6 +7,11 @@ class Config
     /**
      * @var string
      */
+    private $language = 'ru';
+
+    /**
+     * @var string
+     */
     private $username;
 
     /**
@@ -28,6 +33,26 @@ class Config
      * @var string
      */
     private $referer;
+
+    /**
+     * Get Language
+     *
+     * @param string $language
+     */
+    public function setLanguage($language): void
+    {
+        $this->language = $language;
+    }
+
+    /**
+     * Get Language
+     *
+     * @return string
+     */
+    public function getLanguage(): string
+    {
+        return $this->language;
+    }
 
     /**
      * Set Auth

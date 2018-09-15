@@ -11,14 +11,14 @@ class Api
      *
      * @var string
      */
-    protected $path = 'https://m.rzd.ru/timetable/public/ru';
+    protected $path = 'https://pass.rzd.ru/timetable/public/';
 
     /**
      * Страница списка кодов станции
      *
      * @var string
      */
-    protected $suggestionPath = 'https://m.rzd.ru/suggester';
+    protected $suggestionPath = 'https://pass.rzd.ru/suggester';
 
     /**
      * @var Query
@@ -37,6 +37,7 @@ class Api
             $config = new Config();
         }
 
+        $this->path .= $config->getLanguage();
         $this->query = new Query($config);
     }
 

@@ -102,8 +102,8 @@ class Query
 
             $response = $this->curl->getResponse();
 
-            if (empty($response) || ! empty($response->error)) {
-                throw new RuntimeException('Не удалось получить данные!');
+            if (empty($response)) {
+                return $this->curl;
             }
 
             if ($this->isJson($response)) {
