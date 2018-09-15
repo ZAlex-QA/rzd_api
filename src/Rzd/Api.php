@@ -143,6 +143,6 @@ class Api
             }
         }
 
-        return json_encode($stations);
+        return $stations ? json_encode($stations) : false;
     }
 }

@@ -90,8 +90,8 @@ class Query
     protected function run($path, array $params, $method): Curl
     {
         do {
-            if (! empty($cookies) && ! empty($session)){
-                foreach ($cookies as $key=>$value){
+            if (! empty($cookies) && ! empty($session)) {
+                foreach ($cookies as $key => $value) {
                     $this->curl->setCookie($key, $value);
                 }
 
@@ -146,7 +146,7 @@ class Query
      */
     protected function getRid($json): string
     {
-        foreach (['rid', 'RID'] as $rid){
+        foreach (['rid', 'RID'] as $rid) {
             if (isset($json->$rid)) {
                 return $json->$rid;
             }

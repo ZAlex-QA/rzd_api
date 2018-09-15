@@ -5,7 +5,7 @@ $api  = new Rzd\Api();
 $lang = (new Rzd\Config())->getLanguage();
 
 $params = [
-    'stationNamePart' => 'zz',
+    'stationNamePart' => 'ЧЕБ',
     'lang'            => $lang,
     'compactMode'     => 'y',
 ];
