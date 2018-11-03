@@ -75,6 +75,10 @@ class Query
         $this->curl->setCookieJar($cookieFile);
         $this->run($path, $params, $method);
 
+        if ($this->curl->error) {
+            throw new RuntimeException($this->curl->errorMessage);
+        }
+
         return $this->curl;
     }
 
