@@ -33,7 +33,7 @@ class Query
     /**
      * Получает данные
      *
-     * @param  string $path   путь к сайту
+     * @param  string $path   путь к странице
      * @param  array  $params массив данных если необходимы параметры
      * @param  string $method метод отправки данных
      * @return mixed
@@ -165,7 +165,7 @@ class Query
      * @param  string  $string проверяемая строка
      * @return boolean         результат проверки
      */
-    protected function isJson($string): bool
+    public function isJson($string): bool
     {
         if (! \is_string($string)) {
             return false;

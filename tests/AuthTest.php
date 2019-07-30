@@ -23,6 +23,8 @@ class AuthTest extends TestCase
 
     /**
      * Тест авторизации
+     *
+     * @runInSeparateProcess
      */
     public function testLogin(): void
     {
@@ -37,6 +39,7 @@ class AuthTest extends TestCase
     /**
      * Тест получения данных
      *
+     * @runInSeparateProcess
      * @throws Exception
      */
     public function testProfile(): void
@@ -50,7 +53,7 @@ class AuthTest extends TestCase
 
             $profile = json_decode($profile, true);
 
-            $this->assertInternalType('array', $profile);
+            $this->assertIsArray($profile);
             $this->assertArrayHasKey('uid', $profile);
         }
     }

@@ -199,8 +199,6 @@ https://pass.rzd.ru/timetable/public/ru?layer_id=5827&rid={{rid}}
 * shortName - наименование организации
 * offerUrl - ссылка на файл с правилами, обычно PDF файл
 
-
-
 ### trainStationList - получение списка всех станций в текущем маршруте движения
 ![Станции](https://github.com/visavi/rzd-api/blob/master/screens/trainStationList.png)
 
@@ -216,7 +214,6 @@ https://pass.rzd.ru/timetable/public/ru?layer_id=5827&rid={{rid}}
 необязательные параметр при повтрном запросе
 * train_num - номер поезда 072Е
 * date - дата отправления 13.03.2016
-
 
 Возвращает следующий массив станций
 * Station - название станции

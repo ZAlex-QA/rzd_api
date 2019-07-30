@@ -3,6 +3,7 @@
 namespace Rzd;
 
 use Exception;
+use RuntimeException;
 
 class Api
 {
@@ -39,6 +40,8 @@ class Api
 
         $this->path .= $config->getLanguage();
         $this->query = new Query($config);
+
+        header('Content-Type: application/json');
     }
 
     /**
@@ -54,7 +57,7 @@ class Api
             'layer_id' => 5827,
         ];
 
-        $routes = json_decode($this->query->get($this->path, $layer + $params));
+        $routes = $this->getQuery($this->path, $layer + $params);
 
         return json_encode($routes->tp[0]->list);
     }
@@ -72,7 +75,7 @@ class Api
             'layer_id' => 5827,
         ];
 
-        $routes = json_decode($this->query->get($this->path, $layer + $params));
+        $routes = $this->getQuery($this->path, $layer + $params);
 
         return json_encode([$routes->tp[0]->list, $routes->tp[1]->list]);
     }
@@ -90,7 +93,7 @@ class Api
             'layer_id' => 5764,
         ];
 
-        $routes = json_decode($this->query->get($this->path, $layer + $params));
+        $routes = $this->getQuery($this->path, $layer + $params);
 
         return json_encode([
             'cars'           => $routes->lst[0]->cars ?? null,
@@ -112,9 +115,14 @@ class Api
         $layer = [
             'layer_id' => 5804,
             'json'     => 'y',
+            'format' => 'array'
         ];
 
-        $routes = $this->query->get($this->path, $layer + $params);
+        $routes = $this->getQuery($this->path, $layer + $params);
+
+        if (!$routes || !$routes->GtExpress_Response) {
+            throw new RuntimeException('Не удалось получить данные!');
+        }
 
         return json_encode([
             'train' => $routes->GtExpress_Response->Train,
@@ -131,11 +139,10 @@ class Api
      */
     public function stationCode(array $params): string
     {
-        $routes = $this->query->get($this->suggestionPath, $params, 'get');
-
+        $routes = $this->getQuery($this->suggestionPath, $params, 'get');
         $stations = [];
 
-        if ($routes && \is_array($routes)) {
+        if ($routes && is_array($routes)) {
             foreach ($routes as $station) {
                 if (mb_stristr($station->n, $params['stationNamePart'])) {
                     $stations[] = ['station' => $station->n,  'code' => $station->c];
@@ -144,5 +151,31 @@ class Api
         }
 
         return $stations ? json_encode($stations) : false;
+    }
+
+    /**
+     * Получает данные
+     *
+     * @param  string $path   путь к странице
+     * @param  array  $params массив данных если необходимы параметры
+     * @param  string $method метод отправки данных
+     * @return mixed
+     * @throws Exception
+     */
+    public function getQuery($path, array $params = [], $method = 'post')
+    {
+        $query = $this->query->get($path, $params, $method);
+
+        if (! $this->query->isJson($query)) {
+            return $query;
+        }
+
+        $query = json_decode($query, false);
+
+        if ($query && $query->result === 'OK') {
+            return $query;
+        }
+
+        throw new RuntimeException('Не удалось получить данные!');
     }
 }

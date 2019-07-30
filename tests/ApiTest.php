@@ -34,6 +34,8 @@ class ApiTest extends TestCase
 
     /**
      * Тест получения маршрутов
+     *
+     * @runInSeparateProcess
      */
     public function testTrainRoutes(): void
     {
@@ -48,13 +50,15 @@ class ApiTest extends TestCase
 
         $trainRoutes = json_decode($this->api->trainRoutes($params), true);
 
-        $this->assertInternalType('array', $trainRoutes);
+        $this->assertIsArray($trainRoutes);
         $this->assertArrayHasKey('route0', $trainRoutes[0]);
         $this->assertContains('С-ПЕТЕР-ГЛ', $trainRoutes[0]['route0']);
     }
 
     /**
      * Тест получения маршрутов туда-обратно
+     *
+     * @runInSeparateProcess
      */
     public function testTrainRoutesReturn(): void
     {
@@ -70,13 +74,15 @@ class ApiTest extends TestCase
 
         $trainRoutesReturn = json_decode($this->api->trainRoutesReturn($params), true);
 
-        $this->assertInternalType('array', $trainRoutesReturn[0]);
+        $this->assertIsArray($trainRoutesReturn[0]);
         $this->assertArrayHasKey('route0', $trainRoutesReturn[0][0]);
         $this->assertContains('С-ПЕТЕР-ГЛ', $trainRoutesReturn[0][0]['route0']);
     }
 
     /**
      * Тест получения вагонов
+     *
+     * @runInSeparateProcess
      */
     public function testTrainCarriages(): void
     {
@@ -105,7 +111,7 @@ class ApiTest extends TestCase
 
             $trainCarriages = json_decode($this->api->trainCarriages($params), true);
 
-            $this->assertInternalType('array', $trainCarriages);
+            $this->assertIsArray($trainCarriages);
             $this->assertArrayHasKey('cars', $trainCarriages);
             $this->assertArrayHasKey('cnumber', $trainCarriages['cars'][0]);
         }
@@ -113,6 +119,8 @@ class ApiTest extends TestCase
 
     /**
      * Тест просмотра станций
+     *
+     * @runInSeparateProcess
      */
     public function testTrainStationList(): void
     {
@@ -123,13 +131,15 @@ class ApiTest extends TestCase
 
         $trainStationList = json_decode($this->api->trainStationList($params), true);
 
-        $this->assertInternalType('array', $trainStationList);
+        $this->assertIsArray($trainStationList);
         $this->assertArrayHasKey('train', $trainStationList);
         $this->assertContains('072Е', $trainStationList['train']['Number']);
     }
 
     /**
      * Тест кодов станций
+     *
+     * @runInSeparateProcess
      */
     public function testStationCode(): void
     {
@@ -141,7 +151,7 @@ class ApiTest extends TestCase
 
         $stationCode = json_decode($this->api->stationCode($params), true);
 
-        $this->assertInternalType('array', $stationCode);
+        $this->assertIsArray($stationCode);
 
         $cities = [];
         foreach($stationCode as $station) {
