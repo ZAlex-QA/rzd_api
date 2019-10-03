@@ -35,7 +35,7 @@ $api = new Rzd\Api($config);
 $params = [
     'dir'        => 0,
     'tfl'        => 3,
-    'checkSeats' => 0,
+    'checkSeats' => 1,
     'code0'      => '2004000',
     'code1'      => '2000000',
     'dt0'        => 'дата на завтра',
@@ -61,7 +61,7 @@ Referer: rzd.ru
 $params = [
     'dir'        => 1,
     'tfl'        => 3,
-    'checkSeats' => 0,
+    'checkSeats' => 1,
     'code0'      => '2004000',
     'code1'      => '2000000',
     'dt0'        => 'дата на завтра',
@@ -69,6 +69,24 @@ $params = [
 ];
 
 $routes = $api->trainRoutesReturn($params);
+</pre>
+
+<h3>Выбор маршрута в одну сторону с пересадками</h3>
+<a href="/examples/train_routes_transfer.php">Просмотр</a><br>
+В примере выполняется поиск маршрута НОВЫЙ УРЕНГОЙ - АБАКАН (только с билетами) (с пересадками) на завтра
+
+<pre style="background: aliceblue; padding: 5px; border: 1px solid brown">
+$params = [
+    'dir'        => 0,
+    'tfl'        => 3,
+    'checkSeats' => 1,
+    'code0'      => '2030319',
+    'code1'      => '2038230',
+    'dt0'        => 'дата на завтра',
+    'md'         => 1,
+];
+
+$routes = $api->trainRoutes($params)
 </pre>
 
 <h3>Выбор вагонов</h3>
