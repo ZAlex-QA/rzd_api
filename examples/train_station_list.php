@@ -7,8 +7,8 @@ $start = new DateTime();
 $date0 = $start->modify('+1 day');
 
 $params = [
-    'train_num' => '072Е',
-    'date'      => $date0->format('d.m.Y'),
+    'trainNumber' => '054Г',
+    'depDate'     => $date0->format('d.m.Y'),
 ];
 
-echo $api->trainStationList($params);
+var_dump($api->trainStationList($params));

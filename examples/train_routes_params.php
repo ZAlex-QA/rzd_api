@@ -1,4 +1,5 @@
 <?php
+
 require dirname(__DIR__) . '/vendor/autoload.php';
 
 $config = new Rzd\Config();
@@ -6,19 +7,17 @@ $config = new Rzd\Config();
 // Устанавливаем язык
 $config->setLanguage('en');
 
-// Подключаемся через прокси
-/*$config->setProxy([
-    'server' => '192.168.0.1',
-    'port'   => '8080',
-]);*/
-
 // Изменяем userAgent
-$config->setUserAgent('Mozilla 5');
+$config->setUserAgent('Mozilla/5.0 (iPhone; CPU iPhone OS 12_1_2 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/12.0 Mobile/15E148 Safari/604.2');
 
 // Изменяем referer
-$config->setReferer('rzd.ru');
+$config->setReferer('https://ticket.rzd.ru/');
 
-$api = new Rzd\Api($config);
+// Enable debug mode
+$config->setDebugMode(true);
+
+// Enable proxy
+//$config->setProxy('https://username:password@192.168.16.1:10');
 
 $start = new DateTime();
 $date0 = $start->modify('+1 day');
@@ -32,4 +31,6 @@ $params = [
     'dt0'        => $date0->format('d.m.Y'),
 ];
 
-echo $api->trainRoutes($params);
+$api = new Rzd\Api($config);
+
+var_dump($api->trainRoutes($params));

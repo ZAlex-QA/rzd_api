@@ -2,35 +2,37 @@
 
 namespace Rzd;
 
-use Exception;
-use RuntimeException;
+use GuzzleHttp\Exception\GuzzleException;
 
 class Api
 {
-    /**
-     * Страница получения данных
-     *
-     * @var string
-     */
-    protected $path = 'https://pass.rzd.ru/timetable/public/';
+    public const ROUTES_LAYER = 5827;
+    public const CARRIAGES_LAYER = 5764;
+
+    public const STATIONS_STRUCTURE_ID = 704;
 
     /**
-     * Страница списка кодов станции
-     *
-     * @var string
+     * Путь получения маршрутов
      */
-    protected $suggestionPath = 'https://pass.rzd.ru/suggester';
+    protected string $path = 'https://pass.rzd.ru/timetable/public/';
 
     /**
-     * @var Query
+     * Путь получения кодов станций
      */
-    private $query;
+    protected string $suggestionPath = 'https://pass.rzd.ru/suggester';
+
+    /**
+     * Путь получения станций маршрута
+     */
+    protected string $stationListPath = 'https://pass.rzd.ru/ticket/services/route/basicRoute';
+
+    private Query $query;
+    private string $lang;
 
     /**
      * Api constructor.
      *
      * @param Config|null $config
-     * @throws Exception
      */
     public function __construct(Config $config = null)
     {
@@ -38,144 +40,122 @@ class Api
             $config = new Config();
         }
 
-        $this->path .= $config->getLanguage();
+        $this->lang = $config->getLanguage();
+        $this->path .= $this->lang;
         $this->query = new Query($config);
-
-        header('Content-Type: application/json');
     }
 
     /**
-     * Получение числа свободных мест в 1 точку
+     * Получает маршруты в 1 точку
      *
-     * @param  array $params массив параметров
-     * @return string        список мест
-     * @throws Exception
+     * @param array $params Массив параметров
+     *
+     * @return array<object>
+     * @throws GuzzleException
      */
-    public function trainRoutes(array $params): string
+    public function trainRoutes(array $params): array
     {
         $layer = [
-            'layer_id' => 5827,
+            'layer_id' => static::ROUTES_LAYER,
         ];
+        $routes = $this->query->get($this->path, $layer + $params);
 
-        $routes = $this->getQuery($this->path, $layer + $params);
-
-        return json_encode($routes->tp[0]->list);
+        return $routes->tp[0]->list;
     }
 
     /**
-     * Получение числа свободных мест туда-обратно
+     * Получает маршруты туда-обратно
      *
-     * @param  array $params массив параметров
-     * @return string         список мест
-     * @throws Exception
+     * @param  array $params Массив параметров
+     *
+     * @return array<object>
+     * @throws GuzzleException
      */
-    public function trainRoutesReturn(array $params): string
+    public function trainRoutesReturn(array $params): array
     {
         $layer = [
-            'layer_id' => 5827,
+            'layer_id' => static::ROUTES_LAYER,
         ];
+        $routes = $this->query->get($this->path, $layer + $params);
 
-        $routes = $this->getQuery($this->path, $layer + $params);
-
-        return json_encode([$routes->tp[0]->list, $routes->tp[1]->list]);
+        return [
+            'forward' => $routes->tp[0]->list,
+            'back'    => $routes->tp[1]->list
+        ];
     }
 
     /**
      * Получение списка вагонов
      *
-     * @param  array $params массив параметров
-     * @return string        список мест
-     * @throws Exception
+     * @param  array $params Массив параметров
+     *
+     * @return array<object>
+     * @throws GuzzleException
      */
-    public function trainCarriages(array $params): string
+    public function trainCarriages(array $params): array
     {
         $layer = [
-            'layer_id' => 5764,
+            'layer_id' => static::CARRIAGES_LAYER,
         ];
+        $carriages = $this->query->get($this->path, $layer + $params);
 
-        $routes = $this->getQuery($this->path, $layer + $params);
-
-        return json_encode([
-            'cars'           => $routes->lst[0]->cars ?? null,
-            'functionBlocks' => $routes->lst[0]->functionBlocks ?? null,
-            'schemes'        => $routes->schemes ?? null,
-            'companies'      => $routes->insuranceCompany ?? null,
-        ]);
+        return [
+            'cars'           => $carriages->lst[0]->cars ?? null,
+            'functionBlocks' => $carriages->lst[0]->functionBlocks ?? null,
+            'schemes'        => $carriages->schemes ?? null,
+            'companies'      => $carriages->insuranceCompany ?? null,
+        ];
     }
 
     /**
      * Получение списка станций
      *
-     * @param  array $params массив параметров
-     * @return string        список станций
-     * @throws Exception
+     * @param  array $params Массив параметров
+     *
+     * @return array
+     * @throws GuzzleException
      */
-    public function trainStationList(array $params): string
+    public function trainStationList(array $params): array
     {
         $layer = [
-            'layer_id' => 5804,
-            'json'     => 'y',
-            'format' => 'array'
+            'STRUCTURE_ID' => static::STATIONS_STRUCTURE_ID,
         ];
+        $stations = $this->query->get($this->stationListPath, $layer + $params);
 
-        $routes = $this->getQuery($this->path, $layer + $params);
-
-        if (!$routes || !$routes->GtExpress_Response) {
-            throw new RuntimeException('Не удалось получить данные!');
-        }
-
-        return json_encode([
-            'train' => $routes->GtExpress_Response->Train,
-            'routes' => $routes->GtExpress_Response->Routes,
-        ]);
+        return [
+            'train'  => $stations->data->trainInfo,
+            'routes' => $stations->data->routes,
+        ];
     }
 
     /**
      * Получение списка кодов станций
      *
-     * @param  array $params массив параметров
-     * @return string        список соответствий
-     * @throws Exception
+     * @param  array $params Массив параметров
+     *
+     * @return array
+     * @throws GuzzleException
      */
-    public function stationCode(array $params): string
+    public function stationCode(array $params): array
     {
-        $routes = $this->getQuery($this->suggestionPath, $params, 'get');
+        $lang = [
+            'lang' => $this->lang,
+        ];
+
+        $routes = $this->query->get($this->suggestionPath, $lang + $params, 'GET');
         $stations = [];
 
-        if ($routes && is_array($routes)) {
+        if ($routes) {
             foreach ($routes as $station) {
                 if (mb_stristr($station->n, $params['stationNamePart'])) {
-                    $stations[] = ['station' => $station->n,  'code' => $station->c];
+                    $stations[] = [
+                        'station' => $station->n,
+                        'code' => $station->c,
+                    ];
                 }
             }
         }
 
-        return $stations ? json_encode($stations) : false;
-    }
-
-    /**
-     * Получает данные
-     *
-     * @param  string $path   путь к странице
-     * @param  array  $params массив данных если необходимы параметры
-     * @param  string $method метод отправки данных
-     * @return mixed
-     * @throws Exception
-     */
-    public function getQuery($path, array $params = [], $method = 'post')
-    {
-        $query = $this->query->get($path, $params, $method);
-
-        if (! $this->query->isJson($query)) {
-            return $query;
-        }
-
-        $query = json_decode($query, false);
-
-        if ($query && $query->result === 'OK') {
-            return $query;
-        }
-
-        throw new RuntimeException('Не удалось получить данные!');
+        return $stations;
     }
 }

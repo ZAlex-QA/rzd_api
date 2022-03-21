@@ -5,25 +5,11 @@ use Rzd\Api;
 
 class ApiTest extends TestCase
 {
-    /**
-     * var Api
-     */
-    private $api;
+    private Api $api;
+    private Datetime $date0;
+    private Datetime $date1;
 
-    /**
-     * @var string
-     */
-    private $date0;
-
-    /**
-     * @var string
-     */
-    private $date1;
-
-    /**
-     * @throws Exception
-     */
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->api = new Api();
 
@@ -48,11 +34,11 @@ class ApiTest extends TestCase
             'dt0'        => $this->date0->format('d.m.Y'),
         ];
 
-        $trainRoutes = json_decode($this->api->trainRoutes($params), true);
+        $trainRoutes = $this->api->trainRoutes($params);
 
         $this->assertIsArray($trainRoutes);
-        $this->assertArrayHasKey('route0', $trainRoutes[0]);
-        $this->assertContains('С-ПЕТЕР-ГЛ', $trainRoutes[0]['route0']);
+        $this->assertObjectHasAttribute('route0', $trainRoutes[0]);
+        $this->assertSame('С-ПЕТЕР-ГЛ', $trainRoutes[0]->route0);
     }
 
     /**
@@ -72,11 +58,12 @@ class ApiTest extends TestCase
             'dt1'        => $this->date1->format('d.m.Y'),
         ];
 
-        $trainRoutesReturn = json_decode($this->api->trainRoutesReturn($params), true);
+        $trainRoutesReturn = $this->api->trainRoutesReturn($params);
 
-        $this->assertIsArray($trainRoutesReturn[0]);
-        $this->assertArrayHasKey('route0', $trainRoutesReturn[0][0]);
-        $this->assertContains('С-ПЕТЕР-ГЛ', $trainRoutesReturn[0][0]['route0']);
+        $this->assertIsArray($trainRoutesReturn['forward']);
+        $this->assertIsArray($trainRoutesReturn['back']);
+        $this->assertObjectHasAttribute('route0', $trainRoutesReturn['forward'][0]);
+        $this->assertSame('С-ПЕТЕР-ГЛ', $trainRoutesReturn['forward'][0]->route0);
     }
 
     /**
@@ -98,22 +85,20 @@ class ApiTest extends TestCase
         $routes = $this->api->trainRoutes($params);
 
         if ($routes) {
-            $routes = json_decode($routes);
-
             $params = [
                 'dir'   => 0,
                 'code0' => '2004000',
                 'code1' => '2000000',
-                'dt0'   => $this->date0->format('d.m.Y'),
-                'time0' => $routes[0]->trTime0,
+                'dt0'   => $routes[0]->date0,
+                'time0' => $routes[0]->time0,
                 'tnum0' => $routes[0]->number,
             ];
 
-            $trainCarriages = json_decode($this->api->trainCarriages($params), true);
+            $trainCarriages = $this->api->trainCarriages($params);
 
             $this->assertIsArray($trainCarriages);
             $this->assertArrayHasKey('cars', $trainCarriages);
-            $this->assertArrayHasKey('cnumber', $trainCarriages['cars'][0]);
+            $this->assertObjectHasAttribute('cnumber', $trainCarriages['cars'][0]);
         }
     }
 
@@ -125,15 +110,16 @@ class ApiTest extends TestCase
     public function testTrainStationList(): void
     {
         $params = [
-            'train_num' => '072Е',
-            'date'      => $this->date0->format('d.m.Y'),
+            'trainNumber' => '054Г',
+            'depDate'     => $this->date0->format('d.m.Y'),
         ];
 
-        $trainStationList = json_decode($this->api->trainStationList($params), true);
+        $trainStationList = $this->api->trainStationList($params);
 
         $this->assertIsArray($trainStationList);
         $this->assertArrayHasKey('train', $trainStationList);
-        $this->assertContains('072Е', $trainStationList['train']['Number']);
+        $this->assertArrayHasKey('routes', $trainStationList);
+        $this->assertSame('054Г', $trainStationList['train']->number);
     }
 
     /**
@@ -145,11 +131,10 @@ class ApiTest extends TestCase
     {
         $params = [
             'stationNamePart' => 'ЧЕБ',
-            'lang'            => 'ru',
             'compactMode'     => 'y',
         ];
 
-        $stationCode = json_decode($this->api->stationCode($params), true);
+        $stationCode = $this->api->stationCode($params);
 
         $this->assertIsArray($stationCode);
 

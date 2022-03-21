@@ -2,185 +2,134 @@
 
 namespace Rzd;
 
-use Curl\Curl;
 use Exception;
+use GuzzleHttp\Client;
+use GuzzleHttp\Cookie\CookieJar;
+use GuzzleHttp\Exception\GuzzleException;
 use RuntimeException;
 
 class Query
 {
-    /**
-     * @var Config
-     */
-    private $config;
-
-    /**
-     * @var Curl
-     */
-    private $curl;
+    private Client $client;
+    private CookieJar $cookieJar;
+    private array $headers;
 
     /**
      * Query constructor.
      *
      * @param Config $config
-     * @throws Exception
      */
-    public function __construct(Config $config)
+    public function __construct(public Config $config)
     {
-        $this->config = $config;
-        $this->curl = new Curl();
+        $this->client = new Client([
+            'timeout'         => $this->config->getTimeout(),
+            'proxy'           => $this->config->getProxy(),
+            'cookie'          => true,
+            'verify'          => false,
+            'allow_redirects' => true,
+        ]);
+
+        $this->headers = [
+            'Accept' => 'application/json',
+        ];
+
+        if ($userAgent = $this->config->getUserAgent()) {
+            $this->headers['User-Agent'] = $userAgent;
+        }
+
+        if ($referer = $this->config->getReferer()) {
+            $this->headers['Referer'] = $referer;
+        }
+
+        $this->cookieJar = new CookieJar();
     }
 
     /**
      * Получает данные
      *
-     * @param  string $path   путь к странице
-     * @param  array  $params массив данных если необходимы параметры
-     * @param  string $method метод отправки данных
-     * @return mixed
-     * @throws Exception
-     */
-    public function get($path, array $params = [], $method = 'post')
-    {
-        return $this->send($path, $params, $method)->getResponse();
-    }
-
-    /**
-     * Отправляет запрос
+     * @param string $path   Путь к странице
+     * @param array  $params Массив данных если необходимы параметры
+     * @param string $method Метод отправки данных
      *
-     * @param  string $path   путь к сайту
-     * @param  array  $params массив данных если необходимы параметры
-     * @param  string $method метод отправки данных
-     * @return Curl
-     * @throws Exception
+     * @return array|object
+     * @throws GuzzleException
      */
-    public function send($path, array $params = [], $method = 'post'): Curl
+    public function get(string $path, array $params = [], string $method = 'POST'): mixed
     {
-        $cookieFile = sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'rzd_cookie';
-
-        $proxy = $this->config->getProxy();
-
-        $this->curl->setProxy($proxy['server'], $proxy['port'], $proxy['username'], $proxy['password']);
-        $this->curl->setProxyTunnel();
-
-        if ($userAgent = $this->config->getUserAgent()) {
-            $this->curl->setUserAgent($userAgent);
-        }
-
-        if ($referer = $this->config->getReferer()) {
-            $this->curl->setReferer($referer);
-        }
-
-        $this->curl->setOpt(CURLOPT_FOLLOWLOCATION, true);
-        $this->curl->setCookieFile($cookieFile);
-        $this->curl->setCookieJar($cookieFile);
-        $this->run($path, $params, $method);
-
-        if ($this->curl->error) {
-            throw new RuntimeException($this->curl->errorMessage);
-        }
-
-        return $this->curl;
+        return $this->run($path, $params, $method);
     }
 
     /**
      * Запрашивает данные
      *
-     * @param  string $path   путь к странице
-     * @param  array  $params массив параметров
-     * @param  string $method тип запроса
-     * @return Curl           массив данных
-     * @throws Exception
+     * @param string $path   Путь к странице
+     * @param array  $params Массив параметров
+     * @param string $method Тип запроса
+     *
+     * @return array|object
+     * @throws GuzzleException
      */
-    protected function run($path, array $params, $method): Curl
+    protected function run(string $path, array $params, string $method): mixed
     {
+        $i = 0;
         do {
-            if (! empty($cookies) && ! empty($session)) {
-                foreach ($cookies as $key => $value) {
-                    $this->curl->setCookie($key, $value);
-                }
-
-                $params += ['rid' => $session];
+            if (isset($rid)) {
+                $params += ['rid' => $rid];
             }
 
-            $this->curl->$method($path, $params);
+            $options = [
+                'debug'   => $this->config->getDebugMode(),
+                'headers' => $this->headers,
+                'cookies' => $this->cookieJar,
+            ];
 
-            $response = $this->curl->getResponse();
+            $data = $method === 'GET' ? ['query' => $params] : ['form_params' => $params];
+            $response = $this->client->request($method, $path, $data + $options);
 
-            if (empty($response)) {
-                return $this->curl;
-            }
+            $content = $response->getBody()->getContents();
+            $content = json_decode($content);
 
-            if ($this->isJson($response)) {
-                $response = json_decode($response);
-            }
-
-            $result = $response->result ?? $response->type ?? 'OK';
+            $result = $content->result ?? 'OK';
 
             switch ($result) {
                 case 'RID':
                 case 'REQUEST_ID':
-                    $session = $this->getRid($response);
-                    $cookies = $this->curl->getResponseCookies();
+                    $rid = $this->getRid($content);
                     sleep(1);
-                    break 1;
+                    break;
 
                 case 'OK':
                     if (isset($response->tp[0]->msgList[0]->message)) {
-                        $this->curl->close();
                         throw new RuntimeException($response->tp[0]->msgList[0]->message);
                     }
                     break 2;
 
                 default:
-                   $this->curl->close();
-                   throw new RuntimeException($response->message ?? 'Не удалось получить данные!');
+                    throw new RuntimeException($response->message ?? 'Failed to get request data!');
             }
 
-        } while (true);
+            $i++;
+        } while ($i < 10);
 
-        return $this->curl;
+        return $content;
     }
 
     /**
-     * Получает уникальный ключа RID
+     * Получает уникальный ключ RID
      *
-     * @param  string $json данные
-     * @return string       уникальный ключ
+     * @param object $content
+     *
+     * @return string
      * @throws Exception
      */
-    protected function getRid($json): string
+    protected function getRid(object $content): string
     {
         foreach (['rid', 'RID'] as $rid) {
-            if (isset($json->$rid)) {
-                return $json->$rid;
+            if (isset($content->$rid)) {
+                return $content->$rid;
             }
         }
 
-        throw new RuntimeException('Не найден уникальный ключ!');
-    }
-
-    /**
-     * Проверяет является ли строка валидным json-объектом
-     *
-     * @param  string  $string проверяемая строка
-     * @return boolean         результат проверки
-     */
-    public function isJson($string): bool
-    {
-        if (! is_string($string)) {
-            return false;
-        }
-
-        json_decode($string);
-
-        return json_last_error() === JSON_ERROR_NONE;
-    }
-
-    /**
-     * Закрывает соединение
-     */
-    public function __destruct()
-    {
-        $this->curl->close();
+        throw new RuntimeException('Rid not found!');
     }
 }

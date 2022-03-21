@@ -13,16 +13,13 @@ $config = new Rzd\Config();
 $config->setLanguage('en');
 
 // Добавляем прокси
-$config->setProxy([
-    'server' => '192.168.0.1',
-    'port'   => '8080',
-]);
+$config->setProxy('https://username:password@192.168.16.1:10');
 
 // Изменяем userAgent
 $config->setUserAgent('Mozilla 5');
 
 // Изменяем referer
-$config->setReferer('rzd.ru');
+$config->setReferer('https://rzd.ru');
 
 $api = new Rzd\Api($config);
 </pre>
@@ -38,7 +35,7 @@ $params = [
     'checkSeats' => 1,
     'code0'      => '2004000',
     'code1'      => '2000000',
-    'dt0'        => 'дата на завтра',
+    'dt0'        => 'Дата отправления',
 ];
 
 $routes = $api->trainRoutes($params)
@@ -64,8 +61,8 @@ $params = [
     'checkSeats' => 1,
     'code0'      => '2004000',
     'code1'      => '2000000',
-    'dt0'        => 'дата на завтра',
-    'dt1'        => 'дата через 5 дней',
+    'dt0'        => 'Дата отправления',
+    'dt1'        => 'Дата возврата',
 ];
 
 $routes = $api->trainRoutesReturn($params);
@@ -82,7 +79,7 @@ $params = [
     'checkSeats' => 1,
     'code0'      => '2030319',
     'code1'      => '2038230',
-    'dt0'        => 'дата на завтра',
+    'dt0'        => 'Дата отправления',
     'md'         => 1,
 ];
 
@@ -91,16 +88,16 @@ $routes = $api->trainRoutes($params)
 
 <h3>Выбор вагонов</h3>
 <a href="/examples/train_carriages.php">Просмотр</a><br>
-В примере выполняется просмотр всех вагонов в поезде в направлением САНКТ-ПЕТЕРБУРГ - МОСКВА на завтра
+В примере выполняется просмотр всех вагонов в поезде с направлением САНКТ-ПЕТЕРБУРГ - МОСКВА на завтра
 
 <pre style="background: aliceblue; padding: 5px; border: 1px solid brown">
 $params = [
     'dir'   => 0,
     'code0' => '2004000',
     'code1' => '2000000',
-    'dt0'   => 'дата на завтра',
-    'time0' => 'время отправления',
-    'tnum0' => 'номер вагона',
+    'dt0'   => 'Дата отправления',
+    'time0' => 'Время отправления',
+    'tnum0' => 'Номер вагона',
 ];
 
 $carriages = $api->trainCarriages($params)
@@ -112,8 +109,8 @@ $carriages = $api->trainCarriages($params)
 
 <pre style="background: aliceblue; padding: 5px; border: 1px solid brown">
 $params = [
-    'train_num' => '072Е',
-    'date'      => 'дата на завтра',
+    'trainNumber' => '054Г',
+    'depDate'     => 'Дата отправления',
 ];
 
 $stations = $api->trainStationList($params);
@@ -129,32 +126,8 @@ $api = new Rzd\Api();
 
 $params = [
     'stationNamePart' => 'ЧЕБ',
-    'lang'            => 'ru',
     'compactMode'     => 'y',
 ];
 
 $stations = $api->stationCode($params);
-</pre>
-
-<h3>Авторизация пользователя</h3>
-<a href="/examples/user_login.php">Авторизация</a><br>
-В примере выполняется авторизация на сайте rzd.ru, возвращает true и устанавливает куки если авторизация выполнена успешно
-
-<pre style="background: aliceblue; padding: 5px; border: 1px solid brown">
-$config = new Rzd\Config();
-$config->setAuth('username', 'password');
-
-$auth = new Rzd\Auth($config);
-
-$auth->login();
-</pre>
-
-<h3>Просмотр профиля пользователя</h3>
-<a href="/examples/user_profile.php">Просмотр</a><br>
-В примере выполняется просмотр данных профиля, для выполнения успешного запроса сперва необходимо авторизоваться
-
-<pre style="background: aliceblue; padding: 5px; border: 1px solid brown">
-$auth = new Rzd\Auth();
-
-$profile = $auth->getProfile();
 </pre>

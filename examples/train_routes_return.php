@@ -1,7 +1,6 @@
 <?php
-require dirname(__DIR__) . '/vendor/autoload.php';
 
-$api = new Rzd\Api();
+require dirname(__DIR__) . '/vendor/autoload.php';
 
 $start = new DateTime();
 $date0 = $start->modify('+1 day');
@@ -17,4 +16,6 @@ $params = [
     'dt1'        => $date1->format('d.m.Y'),
 ];
 
-echo $api->trainRoutesReturn($params);
+$api = new Rzd\Api();
+
+var_dump($api->trainRoutesReturn($params));

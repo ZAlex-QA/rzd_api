@@ -4,42 +4,19 @@ namespace Rzd;
 
 class Config
 {
-    /**
-     * @var string
-     */
-    private $language = 'ru';
+    private bool    $debug = false;
+    private string  $language = 'ru';
+    private float   $timeout = 5.0;
+    private ?string $proxy = null;
+    private ?string $userAgent = null;
+    private ?string $referer = null;
 
     /**
-     * @var string
-     */
-    private $username;
-
-    /**
-     * @var string
-     */
-    private $password;
-
-    /**
-     * @var array
-     */
-    private $proxy;
-
-    /**
-     * @var string
-     */
-    private $userAgent;
-
-    /**
-     * @var string
-     */
-    private $referer;
-
-    /**
-     * Get Language
+     * Set Language
      *
      * @param string $language
      */
-    public function setLanguage($language): void
+    public function setLanguage(string $language): void
     {
         $this->language = $language;
     }
@@ -55,53 +32,63 @@ class Config
     }
 
     /**
-     * Set Auth
+     * Set debug mode
      *
-     * @param string $username
-     * @param string $password
+     * @param bool $debug
      */
-    public function setAuth($username, $password): void
+    public function setDebugMode(bool $debug): void
     {
-        $this->username = $username;
-        $this->password = $password;
+        $this->debug = $debug;
     }
 
     /**
-     * Get Auth
+     * Get debug mode
      *
-     * @return array
+     * @return bool
      */
-    public function getAuth(): array
+    public function getDebugMode(): bool
     {
-        return [
-            'j_username' => $this->username,
-            'j_password' => $this->password,
-        ];
+        return $this->debug;
+    }
+
+    /**
+     * Get timeout
+     *
+     * @return float
+     */
+    public function getTimeout(): float
+    {
+        return $this->timeout;
+    }
+
+    /**
+     * Set timeout
+     *
+     * @param float $timeout
+     */
+    public function setTimeout(float $timeout): void
+    {
+        $this->timeout = $timeout;
     }
 
     /**
      * Set Proxy
      *
-     * @param array $params
+     * @param string $proxy
      */
-    public function setProxy(array $params): void
+    public function setProxy(string $proxy): void
     {
-        $this->proxy = $params;
+        $this->proxy = $proxy;
     }
 
     /**
      * Get Proxy
      *
-     * @return array
+     * @return string|null
      */
-    public function getProxy(): array
+    public function getProxy(): ?string
     {
-        return [
-            'server'   => $this->proxy['server'] ?? null,
-            'port'     => $this->proxy['port'] ?? null,
-            'username' => $this->proxy['username'] ?? null,
-            'password' => $this->proxy['password'] ?? null,
-        ];
+        return $this->proxy;
     }
 
     /**
@@ -109,7 +96,7 @@ class Config
      *
      * @param string $userAgent
      */
-    public function setUserAgent($userAgent): void
+    public function setUserAgent(string $userAgent): void
     {
         $this->userAgent = $userAgent;
     }
@@ -117,9 +104,9 @@ class Config
     /**
      * Get User Agent
      *
-     * @return string
+     * @return string|null
      */
-    public function getUserAgent():? string
+    public function getUserAgent(): ?string
     {
         return $this->userAgent;
     }
@@ -129,7 +116,7 @@ class Config
      *
      * @param string $referer
      */
-    public function setReferer($referer): void
+    public function setReferer(string $referer): void
     {
         $this->referer = $referer;
     }
@@ -137,9 +124,9 @@ class Config
     /**
      * Set Referer
      *
-     * @return string
+     * @return string|null
      */
-    public function getReferer():? string
+    public function getReferer(): ?string
     {
         return $this->referer;
     }
