@@ -62,12 +62,13 @@ class Query
     /**
      * Запрашивает данные
      *
-     * @param string $path   Путь к странице
-     * @param array  $params Массив параметров
+     * @param string $path Путь к странице
+     * @param array $params Массив параметров
      * @param string $method Тип запроса
      *
      * @return array|object
      * @throws GuzzleException
+     * @throws Exception
      */
     protected function run(string $path, array $params, string $method): mixed
     {
@@ -99,8 +100,8 @@ class Query
                     break;
 
                 case 'OK':
-                    if (isset($response->tp[0]->msgList[0]->message)) {
-                        throw new RuntimeException($response->tp[0]->msgList[0]->message);
+                    if (isset($content->tp[0]->msgList[0]->message)) {
+                        throw new RuntimeException($content->tp[0]->msgList[0]->message);
                     }
                     break 2;
 

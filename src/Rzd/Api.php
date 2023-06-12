@@ -8,7 +8,6 @@ class Api
 {
     public const ROUTES_LAYER = 5827;
     public const CARRIAGES_LAYER = 5764;
-
     public const STATIONS_STRUCTURE_ID = 704;
 
     /**
@@ -50,17 +49,17 @@ class Api
      *
      * @param array $params Массив параметров
      *
-     * @return array<object>
+     * @return string
      * @throws GuzzleException
      */
-    public function trainRoutes(array $params): array
+    public function trainRoutes(array $params): string
     {
         $layer = [
             'layer_id' => static::ROUTES_LAYER,
         ];
         $routes = $this->query->get($this->path, $layer + $params);
 
-        return $routes->tp[0]->list;
+        return json_encode($routes->tp[0]->list, JSON_UNESCAPED_UNICODE);
     }
 
     /**
@@ -68,20 +67,20 @@ class Api
      *
      * @param  array $params Массив параметров
      *
-     * @return array<object>
+     * @return string
      * @throws GuzzleException
      */
-    public function trainRoutesReturn(array $params): array
+    public function trainRoutesReturn(array $params): string
     {
         $layer = [
             'layer_id' => static::ROUTES_LAYER,
         ];
         $routes = $this->query->get($this->path, $layer + $params);
 
-        return [
+        return json_encode([
             'forward' => $routes->tp[0]->list,
             'back'    => $routes->tp[1]->list
-        ];
+        ], JSON_UNESCAPED_UNICODE);
     }
 
     /**
@@ -89,22 +88,22 @@ class Api
      *
      * @param  array $params Массив параметров
      *
-     * @return array<object>
+     * @return string
      * @throws GuzzleException
      */
-    public function trainCarriages(array $params): array
+    public function trainCarriages(array $params): string
     {
         $layer = [
             'layer_id' => static::CARRIAGES_LAYER,
         ];
         $carriages = $this->query->get($this->path, $layer + $params);
 
-        return [
+        return json_encode([
             'cars'           => $carriages->lst[0]->cars ?? null,
             'functionBlocks' => $carriages->lst[0]->functionBlocks ?? null,
             'schemes'        => $carriages->schemes ?? null,
             'companies'      => $carriages->insuranceCompany ?? null,
-        ];
+        ], JSON_UNESCAPED_UNICODE);
     }
 
     /**
@@ -112,20 +111,20 @@ class Api
      *
      * @param  array $params Массив параметров
      *
-     * @return array
+     * @return string
      * @throws GuzzleException
      */
-    public function trainStationList(array $params): array
+    public function trainStationList(array $params): string
     {
         $layer = [
             'STRUCTURE_ID' => static::STATIONS_STRUCTURE_ID,
         ];
         $stations = $this->query->get($this->stationListPath, $layer + $params);
 
-        return [
+        return json_encode([
             'train'  => $stations->data->trainInfo,
             'routes' => $stations->data->routes,
-        ];
+        ], JSON_UNESCAPED_UNICODE);
     }
 
     /**
@@ -133,10 +132,10 @@ class Api
      *
      * @param  array $params Массив параметров
      *
-     * @return array
+     * @return string
      * @throws GuzzleException
      */
-    public function stationCode(array $params): array
+    public function stationCode(array $params): string
     {
         $lang = [
             'lang' => $this->lang,
@@ -156,6 +155,6 @@ class Api
             }
         }
 
-        return $stations;
+        return json_encode($stations, JSON_UNESCAPED_UNICODE);
     }
 }

@@ -11,7 +11,7 @@ $params = [
 $stations = $api->stationCode($params);
 
 if ($stations) {
-    var_dump($stations);
+    echo $stations;
 } else {
     echo 'Не найдено совпадений!';
 }

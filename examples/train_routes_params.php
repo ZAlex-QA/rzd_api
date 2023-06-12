@@ -14,7 +14,7 @@ $config->setUserAgent('Mozilla/5.0 (iPhone; CPU iPhone OS 12_1_2 like Mac OS X) 
 $config->setReferer('https://ticket.rzd.ru/');
 
 // Enable debug mode
-$config->setDebugMode(true);
+//$config->setDebugMode(true);
 
 // Enable proxy
 //$config->setProxy('https://username:password@192.168.16.1:10');
@@ -33,4 +33,4 @@ $params = [
 
 $api = new Rzd\Api($config);
 
-var_dump($api->trainRoutes($params));
+echo $api->trainRoutes($params);

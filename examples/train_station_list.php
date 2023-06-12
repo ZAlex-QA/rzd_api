@@ -11,4 +11,4 @@ $params = [
     'depDate'     => $date0->format('d.m.Y'),
 ];
 
-var_dump($api->trainStationList($params));
+echo $api->trainStationList($params);

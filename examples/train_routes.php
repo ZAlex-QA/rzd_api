@@ -16,4 +16,4 @@ $params = [
 
 $api = new Rzd\Api();
 
-var_dump($api->trainRoutes($params));
+echo $api->trainRoutes($params);

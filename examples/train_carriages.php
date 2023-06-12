@@ -15,7 +15,7 @@ $params = [
     'code1'      => '2000000',
     'dt0'        => $date0->format('d.m.Y'),
 ];
-$routes = $api->trainRoutes($params);
+$routes = json_decode($api->trainRoutes($params));
 
 if ($routes) {
     $params = [
@@ -27,7 +27,7 @@ if ($routes) {
         'tnum0' => $routes[0]->number,
     ];
 
-    var_dump($api->trainCarriages($params));
+    echo $api->trainCarriages($params);
 
 } else {
     echo 'Не удалось найти маршрут';
