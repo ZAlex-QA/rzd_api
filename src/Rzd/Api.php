@@ -3,6 +3,7 @@
 namespace Rzd;
 
 use GuzzleHttp\Exception\GuzzleException;
+use JsonException;
 
 class Api
 {
@@ -50,7 +51,7 @@ class Api
      * @param array $params Массив параметров
      *
      * @return string
-     * @throws GuzzleException
+     * @throws GuzzleException|JsonException
      */
     public function trainRoutes(array $params): string
     {
@@ -59,7 +60,7 @@ class Api
         ];
         $routes = $this->query->get($this->path, $layer + $params);
 
-        return json_encode($routes->tp[0]->list, JSON_UNESCAPED_UNICODE);
+        return json_encode($routes->tp[0]->list, JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE);
     }
 
     /**
@@ -68,7 +69,7 @@ class Api
      * @param  array $params Массив параметров
      *
      * @return string
-     * @throws GuzzleException
+     * @throws GuzzleException|JsonException
      */
     public function trainRoutesReturn(array $params): string
     {
@@ -78,9 +79,11 @@ class Api
         $routes = $this->query->get($this->path, $layer + $params);
 
         return json_encode([
-            'forward' => $routes->tp[0]->list,
-            'back'    => $routes->tp[1]->list
-        ], JSON_UNESCAPED_UNICODE);
+                'forward' => $routes->tp[0]->list,
+                'back'    => $routes->tp[1]->list,
+            ],
+            JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE
+        );
     }
 
     /**
@@ -89,7 +92,7 @@ class Api
      * @param  array $params Массив параметров
      *
      * @return string
-     * @throws GuzzleException
+     * @throws GuzzleException|JsonException
      */
     public function trainCarriages(array $params): string
     {
@@ -99,11 +102,14 @@ class Api
         $carriages = $this->query->get($this->path, $layer + $params);
 
         return json_encode([
-            'cars'           => $carriages->lst[0]->cars ?? null,
-            'functionBlocks' => $carriages->lst[0]->functionBlocks ?? null,
-            'schemes'        => $carriages->schemes ?? null,
-            'companies'      => $carriages->insuranceCompany ?? null,
-        ], JSON_UNESCAPED_UNICODE);
+                'cars'           => $carriages->lst[0]->cars ?? null,
+                'functionBlocks' => $carriages->lst[0]->functionBlocks ?? null,
+                'schemes'        => $carriages->schemes ?? null,
+                'companies'      => $carriages->insuranceCompany ?? null,
+            ],
+            JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE
+        );
+
     }
 
     /**
@@ -112,7 +118,7 @@ class Api
      * @param  array $params Массив параметров
      *
      * @return string
-     * @throws GuzzleException
+     * @throws GuzzleException|JsonException
      */
     public function trainStationList(array $params): string
     {
@@ -122,9 +128,11 @@ class Api
         $stations = $this->query->get($this->stationListPath, $layer + $params);
 
         return json_encode([
-            'train'  => $stations->data->trainInfo,
-            'routes' => $stations->data->routes,
-        ], JSON_UNESCAPED_UNICODE);
+                'train'  => $stations->data->trainInfo,
+                'routes' => $stations->data->routes,
+            ],
+            JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE
+        );
     }
 
     /**
@@ -133,7 +141,7 @@ class Api
      * @param  array $params Массив параметров
      *
      * @return string
-     * @throws GuzzleException
+     * @throws GuzzleException|JsonException
      */
     public function stationCode(array $params): string
     {
@@ -155,6 +163,6 @@ class Api
             }
         }
 
-        return json_encode($stations, JSON_UNESCAPED_UNICODE);
+        return json_encode($stations, JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE);
     }
 }

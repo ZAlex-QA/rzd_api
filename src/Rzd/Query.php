@@ -88,7 +88,7 @@ class Query
             $response = $this->client->request($method, $path, $data + $options);
 
             $content = $response->getBody()->getContents();
-            $content = json_decode($content);
+            $content = json_decode($content, false, 512, JSON_THROW_ON_ERROR);
 
             $result = $content->result ?? 'OK';
 

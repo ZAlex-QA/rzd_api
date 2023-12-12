@@ -4,9 +4,9 @@ namespace Rzd;
 
 class Config
 {
-    private bool    $debug = false;
-    private string  $language = 'ru';
-    private float   $timeout = 5.0;
+    private bool $debug = false;
+    private string $language = 'ru';
+    private float $timeout = 5.0;
     private ?string $proxy = null;
     private ?string $userAgent = null;
     private ?string $referer = null;
