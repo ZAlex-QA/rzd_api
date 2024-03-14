@@ -166,11 +166,12 @@ https://pass.rzd.ru/timetable/public/ru?layer_id=5827&rid={{rid}}
 * cars - массив свободных мест купе, плацкарт и люкс
 * cars.freeSeats - кол.  свободных мест
 * cars.itype
-* cars.servCls
+* cars.servCls - класс обслуживания (2Ю, 2Ж и т.д.)
 * cars.tariff - стоимость билета
 * cars.pt - баллы
 * cars.typeLoc - полное наименование (Плацкартный, СВ, Купе, Люкс)
 * cars.type - сокращенное наименование (Купе, плац, люкс)
+* cars.disabledPerson - флаг обозначающий места для инвалидов
 
 ### trainRoutesReturn - получает маршруты поездов, количество свободных мест, цены итд, туда-обратно
 ![Поезда](https://github.com/visavi/rzd-api/blob/master/screens/trainRouteReturn.png)
