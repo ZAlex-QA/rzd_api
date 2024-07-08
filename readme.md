@@ -18,6 +18,17 @@
 
 ### Демонстрация возможностей
 
+#### Быстрый способ (Docker)
+
+```commandline
+docker run -p 8000:8000 --rm --name rzd-api -v $(pwd):/app-it pavelsr/rzd-api
+curl -s 'http://127.0.0.1:8000/train_routes.php?code0=2004000&code1=2000000'
+```
+
+Если вы предпочитаете Github Container Registry вы можете также использовать образ `ghcr.io/pavelsr/rzd-api:latest`
+
+#### Локальная установка
+
 Скачайте архив, распакуйте и перейдите в директорию
 
 Установите необходимые зависимости
